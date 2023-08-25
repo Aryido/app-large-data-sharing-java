@@ -30,6 +30,11 @@ limitations under the License.
     </properties>
     <dependencies>
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -45,7 +50,7 @@ limitations under the License.
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-firestore</artifactId>
+            <artifactId>spring-cloud-gcp-starter-data-firestore</artifactId>
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
@@ -79,8 +84,8 @@ limitations under the License.
         <dependencies>
             <dependency>
                 <groupId>com.google.cloud</groupId>
-                <artifactId>libraries-bom</artifactId>
-                <version>26.7.0</version>
+                <artifactId>spring-cloud-gcp-dependencies</artifactId>
+                <version>4.7.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

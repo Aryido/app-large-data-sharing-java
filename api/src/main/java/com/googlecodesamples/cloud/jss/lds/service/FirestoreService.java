@@ -20,7 +20,6 @@ import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.DocumentReference;
 import com.google.cloud.firestore.FieldPath;
 import com.google.cloud.firestore.Firestore;
-import com.google.cloud.firestore.FirestoreOptions;
 import com.google.cloud.firestore.Query;
 import com.google.cloud.firestore.QueryDocumentSnapshot;
 import com.google.cloud.firestore.QuerySnapshot;
@@ -49,8 +48,8 @@ public class FirestoreService {
   @Value("${resource.path}")
   private String basePath;
 
-  public FirestoreService() {
-    this.firestore = FirestoreOptions.getDefaultInstance().getService();
+  public FirestoreService(Firestore firestore) {
+    this.firestore = firestore;
   }
 
   /**

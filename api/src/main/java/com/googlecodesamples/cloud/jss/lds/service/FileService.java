@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import lombok.SneakyThrows;
 import net.coobird.thumbnailator.Thumbnails;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +98,8 @@ public class FileService {
    *
    * @param file the uploaded file
    */
-  public void deleteFile(BaseFile file) throws InterruptedException, ExecutionException {
+  @SneakyThrows
+  public void deleteFile(BaseFile file) {
     log.info("entering deleteFile()");
     firestoreService.delete(file.getId());
     storageService.delete(bucketName, file.getPath());
@@ -129,7 +132,8 @@ public class FileService {
   }
 
   /** Delete all files from Firestore and Cloud Storage. */
-  public void resetFile() throws InterruptedException, ExecutionException {
+  @SneakyThrows
+  public void resetFile() {
     log.info("entering resetFile()");
     firestoreService.deleteCollection();
     storageService.batchDelete(bucketName);

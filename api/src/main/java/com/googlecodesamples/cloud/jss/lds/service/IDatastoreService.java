@@ -1,14 +1,22 @@
 package com.googlecodesamples.cloud.jss.lds.service;
+
+import java.util.List;
 import java.util.Optional;
 
-public interface IDatastoreService<T> {
+public interface IDatastoreService<D, V> {
 
-	void save(T data);
+	void save(D data);
 
 	void delete(String dataId);
 
 	void deleteAll();
 
-	Optional<T> findById(String dataId);
+	Optional<D> findById(String dataId);
+
+	List<V> findAllOrderByOrderNoDescLimit(int limit);
+
+	List<V> findByTagsContainOrderByOrderNoDescLimit(List<String> tags, int limit);
+
+	List<V> findByTagsContainOrderByOrderNoDescStartAfterOrderNoLimit(List<String> tags, String orderNo, int limit);
 
 }

@@ -11,7 +11,7 @@ public interface IDatastoreService<D, V> {
 
 	void deleteAll();
 
-	Optional<D> findById(String dataId);
+	Optional<V> findById(String dataId);
 
 	List<V> findAllOrderByOrderNoDescLimit(int limit);
 

@@ -16,20 +16,26 @@
 
 package com.googlecodesamples.cloud.jss.lds.model;
 
+import com.google.cloud.firestore.QueryDocumentSnapshot;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
+import org.springframework.beans.BeanUtils;
 
+import java.util.Date;
 import java.util.List;
 
+/**
+ * The BaseFile class represents a file being uploaded by the users
+ */
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Dao {
-	private String id;
-	private String path;
-	private String name;
-	private List<String> tags;
-	private String orderNo;
-	private long size;
+public class Vo extends Dao {
+  public static final List<String> IMG_EXTENSIONS = List.of("png", "jpeg", "jpg", "gif");
+  public static final String THUMBNAIL_EXTENSION = "_small";
 
+  private String url;
+  private String thumbUrl;
+  private Date createTime;
+  private Date updateTime;
 }

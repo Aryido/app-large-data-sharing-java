@@ -3,36 +3,34 @@ package com.googlecodesamples.cloud.jss.lds.service.impl;
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
 import com.googlecodesamples.cloud.jss.lds.model.Dao;
-import com.googlecodesamples.cloud.jss.lds.model.FileMeta;
+import com.googlecodesamples.cloud.jss.lds.model.Vo;
 import com.googlecodesamples.cloud.jss.lds.service.IConvertorService;
 import com.googlecodesamples.cloud.jss.lds.service.IDatastoreService;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class DatastoreServiceImpl implements IDatastoreService<Dao, QueryDocumentSnapshot> {
+public class DatastoreServiceImpl implements IDatastoreService<Dao, Vo> {
 	private static final String TAGS = "tags";
-
 	private static final String ORDER_NO = "orderNo";
 	private final Firestore firestore;
+	private final IConvertorService<QueryDocumentSnapshot, Vo> convertorService;
 	@Value("${firestore.collection.name}")
 	private String collectionName;
 
-	@Value("${resource.path}")
-	private String basePath;
-
-	public DatastoreServiceImpl(Firestore firestore) {
+	public DatastoreServiceImpl(
+			Firestore firestore,
+			IConvertorService<QueryDocumentSnapshot, Vo> convertorService
+	) {
 		this.firestore = firestore;
+		this.convertorService = convertorService;
 	}
 
 	@SneakyThrows
@@ -56,36 +54,56 @@ public class DatastoreServiceImpl implements IDatastoreService<Dao, QueryDocumen
 
 	@SneakyThrows
 	@Override
-	public Optional<Dao> findById(String dataId) {
+	public Optional<Vo> findById(String dataId) {
 		ApiFuture<QuerySnapshot> future = firestore.collection(collectionName)
-				.whereEqualTo(FieldPath.documentId(), dataId).get();
+				.whereEqualTo(FieldPath.documentId(), dataId)
+				.get();
 		List<QueryDocumentSnapshot> documents = future.get().getDocuments();
-		return documents.stream().map(doc -> doc.toObject(Dao.class)).findFirst();
+		return documents.stream()
+				.map(convertorService::convert)
+				.findFirst();
 	}
 
+	@SneakyThrows
 	@Override
-	public List<QueryDocumentSnapshot> findAllOrderByOrderNoDescLimit(int limit) {
-		ApiFuture<QuerySnapshot> apiFuture = firestore.collection(collectionName)
+	public List<Vo> findAllOrderByOrderNoDescLimit(int limit) {
+		ApiFuture<QuerySnapshot> future = firestore.collection(collectionName)
 				.orderBy(ORDER_NO, Query.Direction.DESCENDING)
 				.limit(limit)
 				.get();
-		try {
-			QuerySnapshot queryDocumentSnapshots = apiFuture.get();
-			return queryDocumentSnapshots.getDocuments();
-		} catch (InterruptedException | ExecutionException e) {
-			log.error("find all data order by orderNo Desc Limit {} failed", limit);
-			throw new RuntimeException(e);
-		}
+		List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+		return documents.stream()
+				.map(convertorService::convert)
+				.collect(Collectors.toList());
 	}
 
+	@SneakyThrows
 	@Override
-	public List<QueryDocumentSnapshot> findByTagsContainOrderByOrderNoDescLimit(List<String> tags, int limit) {
-		return null;
+	public List<Vo> findByTagsContainOrderByOrderNoDescLimit(List<String> tags, int limit) {
+		ApiFuture<QuerySnapshot> future = firestore.collection(collectionName)
+				.whereArrayContainsAny(TAGS, tags)
+				.orderBy(ORDER_NO, Query.Direction.DESCENDING)
+				.limit(limit)
+				.get();
+		List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+		return documents.stream()
+				.map(convertorService::convert)
+				.collect(Collectors.toList());
 	}
 
+	@SneakyThrows
 	@Override
-	public List<QueryDocumentSnapshot> findByTagsContainOrderByOrderNoDescStartAfterOrderNoLimit(List<String> tags,
-			String orderNo, int limit) {
-		return null;
+	public List<Vo> findByTagsContainOrderByOrderNoDescStartAfterOrderNoLimit(List<String> tags, String orderNo,
+			int limit) {
+		ApiFuture<QuerySnapshot> future = firestore.collection(collectionName)
+				.whereArrayContainsAny(TAGS, tags)
+				.orderBy(ORDER_NO, Query.Direction.DESCENDING)
+				.startAfter(orderNo)
+				.limit(limit)
+				.get();
+		List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+		return documents.stream()
+				.map(convertorService::convert)
+				.collect(Collectors.toList());
 	}
 }

@@ -54,7 +54,7 @@ limitations under the License.
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
-            <artifactId>google-cloud-storage</artifactId>
+            <artifactId>spring-cloud-gcp-starter-storage</artifactId>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

@@ -2,7 +2,7 @@ package com.googlecodesamples.cloud.jss.lds.service.impl;
 
 import com.google.api.core.ApiFuture;
 import com.google.cloud.firestore.*;
-import com.googlecodesamples.cloud.jss.lds.model.Dao;
+import com.googlecodesamples.cloud.jss.lds.model.Entity;
 import com.googlecodesamples.cloud.jss.lds.model.Vo;
 import com.googlecodesamples.cloud.jss.lds.service.IConvertorService;
 import com.googlecodesamples.cloud.jss.lds.service.IDatastoreService;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class DatastoreServiceImpl implements IDatastoreService<Dao, Vo> {
+public class DatastoreServiceImpl implements IDatastoreService<Entity, Vo> {
 	private static final String TAGS = "tags";
 	private static final String ORDER_NO = "orderNo";
 	private final Firestore firestore;
@@ -35,7 +35,7 @@ public class DatastoreServiceImpl implements IDatastoreService<Dao, Vo> {
 
 	@SneakyThrows
 	@Override
-	public void save(Dao data) {
+	public void save(Entity data) {
 		DocumentReference docRef = firestore.collection(collectionName).document(data.getId());
 		docRef.set(data).get();
 	}
@@ -83,6 +83,20 @@ public class DatastoreServiceImpl implements IDatastoreService<Dao, Vo> {
 		ApiFuture<QuerySnapshot> future = firestore.collection(collectionName)
 				.whereArrayContainsAny(TAGS, tags)
 				.orderBy(ORDER_NO, Query.Direction.DESCENDING)
+				.limit(limit)
+				.get();
+		List<QueryDocumentSnapshot> documents = future.get().getDocuments();
+		return documents.stream()
+				.map(convertorService::convert)
+				.collect(Collectors.toList());
+	}
+
+	@SneakyThrows
+	@Override
+	public List<Vo> findAllOrderByOrderNoDescStartAfterOrderNoLimit(String orderNo, int limit) {
+		ApiFuture<QuerySnapshot> future = firestore.collection(collectionName)
+				.orderBy(ORDER_NO, Query.Direction.DESCENDING)
+				.startAfter(orderNo)
 				.limit(limit)
 				.get();
 		List<QueryDocumentSnapshot> documents = future.get().getDocuments();

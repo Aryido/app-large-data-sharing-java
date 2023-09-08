@@ -17,6 +17,8 @@ public interface IDatastoreService<D, V> {
 
 	List<V> findByTagsContainOrderByOrderNoDescLimit(List<String> tags, int limit);
 
+	List<V> findAllOrderByOrderNoDescStartAfterOrderNoLimit(String orderNo, int limit);
+
 	List<V> findByTagsContainOrderByOrderNoDescStartAfterOrderNoLimit(List<String> tags, String orderNo, int limit);
 
 }

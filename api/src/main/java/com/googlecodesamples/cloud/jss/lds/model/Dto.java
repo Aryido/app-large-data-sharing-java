@@ -16,20 +16,13 @@
 
 package com.googlecodesamples.cloud.jss.lds.model;
 
-import lombok.*;
-
-import java.util.List;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 @Data
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
-public class Dao {
-	private String id;
-	private String path;
-	private String name;
-	private List<String> tags;
-	private String orderNo;
-	private long size;
-
+public class Dto<V> {
+	private final V file;
 }

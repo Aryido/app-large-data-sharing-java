@@ -16,13 +16,12 @@
 
 package com.googlecodesamples.cloud.jss.lds.controller;
 
-import com.googlecodesamples.cloud.jss.lds.model.BaseFile;
-import com.googlecodesamples.cloud.jss.lds.model.FileListResponse;
-import com.googlecodesamples.cloud.jss.lds.model.FileResponse;
-import com.googlecodesamples.cloud.jss.lds.service.FileService;
+import com.googlecodesamples.cloud.jss.lds.model.Dto;
+import com.googlecodesamples.cloud.jss.lds.model.ListDto;
+import com.googlecodesamples.cloud.jss.lds.model.Vo;
+import com.googlecodesamples.cloud.jss.lds.service.IFileService;
 import com.googlecodesamples.cloud.jss.lds.service.OpenTelemetryService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.CollectionUtils;
@@ -33,18 +32,19 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /** REST API controller of the backend service */
-//@RestController
+@Slf4j
+@RestController
 @RequestMapping("/api")
-public class FileController {
-  private static final Logger log = LoggerFactory.getLogger(FileController.class);
+public class Controller {
   private static final String STRING_SEPARATOR = "\\s+";
-  private final FileService fileService;
+  private final IFileService<Vo> fileService;
   private final OpenTelemetryService openTelemetryService;
 
-  public FileController(FileService fileService, OpenTelemetryService openTelemetryService) {
+  public Controller(IFileService<Vo> fileService, OpenTelemetryService openTelemetryService) {
     this.fileService = fileService;
     this.openTelemetryService = openTelemetryService;
   }
@@ -75,8 +75,11 @@ public class FileController {
     return openTelemetryService.spanScope(this.getClass().getName(), "uploadFiles", () -> {
       log.info("entering uploadFiles()");
       List<String> tagList = getTagList(tags);
-      List<BaseFile> fileList = fileService.uploadFiles(files, tagList);
-      return ResponseEntity.status(HttpStatus.CREATED).body(new FileListResponse(fileList));
+      List<Vo> fileList = fileService.createFiles(files, tagList);
+
+      return ResponseEntity.status(HttpStatus.CREATED).body(ListDto.<Vo>builder()
+              .files(fileList)
+              .build());
     });
   }
 
@@ -96,11 +99,13 @@ public class FileController {
     return openTelemetryService.spanScope(this.getClass().getName(), "getFilesByTag", () -> {
       log.info("entering getFilesByTag()");
       List<String> tagList = getTagList(tags);
-      List<BaseFile> fileList = fileService.getFilesByTag(tagList, orderNo, size);
+      List<Vo> fileList = fileService.findFilesBy(tagList, orderNo, size);
       if (CollectionUtils.isEmpty(fileList)) {
-        return ResponseEntity.ok().body(new FileListResponse(new ArrayList<>()));
+        return ResponseEntity.ok().body(ListDto.<Vo>builder().files(new ArrayList<>()).build());
       }
-      return ResponseEntity.ok().body(new FileListResponse(fileList));
+      return ResponseEntity.ok().body(ListDto.<Vo>builder()
+              .files(fileList)
+              .build());
     });
   }
 
@@ -119,13 +124,13 @@ public class FileController {
       @RequestParam String tags) throws Exception {
     return openTelemetryService.spanScope(this.getClass().getName(), "updateFile", () -> {
       log.info("entering updateFile()");
-      BaseFile oldFile = fileService.getFileById(fileId);
-      if (oldFile == null) {
+      Optional<Vo> optionalVo = fileService.findFileById(fileId);
+      if (optionalVo.isEmpty()) {
         return ResponseEntity.notFound().build();
       }
       List<String> tagList = getTagList(tags);
-      BaseFile newFile = fileService.updateFile(file, tagList, oldFile);
-      return ResponseEntity.ok().body(new FileResponse(newFile));
+      Vo vo = fileService.updateFile(file, tagList, optionalVo.get());
+      return ResponseEntity.ok().body(Dto.<Vo>builder().file(vo).build());
     });
   }
 
@@ -139,11 +144,11 @@ public class FileController {
   public ResponseEntity<?> deleteFile(@PathVariable("id") String fileId) throws Exception {
     return openTelemetryService.spanScope(this.getClass().getName(), "deleteFile", () -> {
       log.info("entering deleteFile()");
-      BaseFile file = fileService.getFileById(fileId);
-      if (file == null) {
+      Optional<Vo> optionalVo = fileService.findFileById(fileId);
+      if (optionalVo.isEmpty()) {
         return ResponseEntity.notFound().build();
       }
-      fileService.deleteFile(file);
+      fileService.deleteFile(optionalVo.get());
       return ResponseEntity.noContent().build();
     });
   }

@@ -16,25 +16,9 @@
 
 package com.googlecodesamples.cloud.jss.lds.model;
 
-import com.google.cloud.Timestamp;
-import com.google.cloud.spring.data.firestore.mapping.UpdateTime;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import java.util.Date;
-
-/**
- * The BaseFile class represents a file being uploaded by the users
- */
-@Data
 @SuperBuilder
-@NoArgsConstructor
-@AllArgsConstructor
-public class Vo extends BaseModel {
-	private String url;
-	private String thumbUrl;
-	private Date createTime;
-	private Date updateTime;
+public class Entity extends BaseModel {
+
 }

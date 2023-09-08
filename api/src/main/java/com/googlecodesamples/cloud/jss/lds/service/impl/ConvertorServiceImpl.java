@@ -1,7 +1,6 @@
 package com.googlecodesamples.cloud.jss.lds.service.impl;
 
 import com.google.cloud.firestore.QueryDocumentSnapshot;
-import com.googlecodesamples.cloud.jss.lds.model.BaseFile;
 import com.googlecodesamples.cloud.jss.lds.model.Vo;
 import com.googlecodesamples.cloud.jss.lds.service.IConvertorService;
 import com.googlecodesamples.cloud.jss.lds.util.LdsUtil;
@@ -26,7 +25,6 @@ public class ConvertorServiceImpl implements IConvertorService<QueryDocumentSnap
 		String resourceBasePath = LdsUtil.getResourceBasePath(basePath);
 		vo.setUrl(resourceBasePath + path);
 		vo.setThumbUrl(resourceBasePath + path + THUMBNAIL_EXTENSION);
-
 		vo.setCreateTime(Objects.requireNonNull(sourceData.getCreateTime()).toDate());
 		vo.setUpdateTime(Objects.requireNonNull(sourceData.getUpdateTime()).toDate());
 

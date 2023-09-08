@@ -50,6 +50,10 @@ limitations under the License.
         </dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
+            <artifactId>spring-cloud-gcp-starter-firestore</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.cloud</groupId>
             <artifactId>spring-cloud-gcp-starter-data-firestore</artifactId>
         </dependency>
         <dependency>

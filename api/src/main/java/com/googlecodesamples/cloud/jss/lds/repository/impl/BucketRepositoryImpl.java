@@ -1,35 +1,35 @@
-package com.googlecodesamples.cloud.jss.lds.service.impl;
+package com.googlecodesamples.cloud.jss.lds.repository.impl;
 
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.*;
-import com.googlecodesamples.cloud.jss.lds.service.IBucketService;
+import com.googlecodesamples.cloud.jss.lds.repository.IBucketRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class BucketServiceImpl implements IBucketService {
+public class BucketRepositoryImpl implements IBucketRepository {
 	@Value("${storage.bucket.name}")
 	private String bucketName;
 	private final Storage storage;
-	public BucketServiceImpl(Storage storage) {
+	public BucketRepositoryImpl(Storage storage) {
 		this.storage = storage;
 	}
 
 	@Override
-	public void save(String dataId, String contentType, byte[] content) {
-		BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, dataId)
+	public void save(String pathWithDataId, String contentType, byte[] content) {
+		BlobInfo blobInfo = BlobInfo.newBuilder(bucketName, pathWithDataId)
 				.setContentType(contentType)
 				.build();
 		storage.create(blobInfo, content);
-		log.info("Saved {} data in {} bucket.", dataId, bucketName);
+		log.info("Saved {} data in {} bucket.", pathWithDataId, bucketName);
 	}
 
 	@Override
-	public void delete(String dataId) {
-		storage.delete(bucketName, dataId);
-		log.info("Deleted {} data in {} bucket.", dataId, bucketName);
+	public void delete(String pathWithDataId) {
+		storage.delete(bucketName, pathWithDataId);
+		log.info("Deleted {} data in {} bucket.", pathWithDataId, bucketName);
 	}
 
 	@Override
